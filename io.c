@@ -14,7 +14,7 @@
 * @param BIT - zu setzendes Bit
 * @param POS - Position des Bits
 */
-#define PUT_BIT(BYTE, BIT, POS) (BIT == 0 ? (BYTE & ~(0x01 << POS)) : (BYTE | (0x01 << POS)))
+#define PUT_BIT(BYTE, BIT, POS) BIT == 0 ? (BYTE & ~(0x01 << POS)) : (BYTE | (0x01 << POS))
 
 /**
  * Eingabepuffer
@@ -42,11 +42,6 @@ static unsigned short read_position_bit = 0;
 static unsigned short read_filling_level_bit = 0;
 
 /**
- * Größe des Eingabe-Arrays
- */
-static unsigned short size_of_input_array;
-
-/**
  * Ausgabepuffer
  */
 static unsigned char out_buffer[BUF_SIZE] = {0};
@@ -69,7 +64,7 @@ static unsigned short write_position_bit = 0;
 extern void init_in(char text[])
 {
     unsigned int index;
-    for (index = 0; index < size_of_input_array; index++)
+    for (index = 0; index < sizeof(text); index++)
     {
         in_buffer[index] = text[index];
     }
@@ -137,7 +132,8 @@ extern BIT read_bit(void)
 
 extern void write_bit(BIT c)
 {
-    PUT_BIT(out_buffer[write_position_byte], c, write_position_bit);
+    out_buffer[write_position_byte] = PUT_BIT(
+            out_buffer[write_position_byte], c, write_position_bit);
     write_position_bit++;
 
     if (write_position_bit == 8)
@@ -151,16 +147,8 @@ extern void write_bit(BIT c)
 extern void print_out_char_array(char array[])
 {
     printf("\n");
-    for (int i = 0; i < size_of_input_array; i++)
+    for (int i = 0; i < sizeof(array); i++)
     {
         printf("%c ", array[i]);
     }
-}
-
-extern void set_size_of_input_array(unsigned short size) {
-    size_of_input_array = size;
-}
-
-extern unsigned short get_size_of_input_array(void) {
-    return size_of_input_array;
 }

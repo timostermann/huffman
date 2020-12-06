@@ -33,8 +33,9 @@ int main()
     char out[50] = {0};
 
     test_rd_chars_wr_bits(in, out);
-    strcmp(out, "UUUUUU");
     print_out_char_array(out);
     return 0;
 }
+
+
 

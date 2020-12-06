@@ -78,16 +78,4 @@ extern void write_bit(BIT c);
 */
 extern void print_out_char_array(char array[]);
 
-/**
- * Setzt Größe des Input-Arrays.
- * @param size - übergebene Größe
- */
-extern void set_size_of_input_array(unsigned short size);
-
-/**
- * Liefert Größe des Input-Arrays.
- * @return Größe
- */
-extern unsigned short get_size_of_input_array(void);
-
 #endif //HUFFMAN_IO_H
