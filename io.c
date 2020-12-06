@@ -1,24 +1,70 @@
 #include "io.h"
 #include <stdio.h>
 
+/**
+ * liefert Bitwert an bestimmter Position in einem Byte
+ * @param BYTE - zu untersuchendes Byte
+ * @param POS - Position des Bits
+ */
 #define GET_BIT(BYTE, POS) ((BYTE & (0x01 << POS)) > 0)
+
+/**
+* setzt Bitwert an bestimmter Position in einem Byte
+* @param BYTE - zu veränderndes Byte
+* @param BIT - zu setzendes Bit
+* @param POS - Position des Bits
+*/
 #define PUT_BIT(BYTE, BIT, POS) (BIT == 0 ? (BYTE & ~(0x01 << POS)) : (BYTE | (0x01 << POS)))
 
+/**
+ * Eingabepuffer
+ */
 static unsigned char in_buffer[BUF_SIZE];
+
+/**
+ * Leseposition Byte Eingabepuffer
+ */
 static unsigned int read_position_byte = 0;
+
+/**
+ * Füllstand Byte Eingabepuffer
+ */
 static unsigned int read_filling_level_byte = 0;
+
+/**
+ * Lesepostion Bit Eingabepuffer
+ */
 static unsigned short read_position_bit = 0;
+
+/**
+ * Füllstand Bit Eingabepuffer
+ */
 static unsigned short read_filling_level_bit = 0;
 
+/**
+ * Ausgabepuffer
+ */
 static unsigned char out_buffer[BUF_SIZE] = {0};
+
+/**
+ * Schreibposition Byte Ausgabepuffer
+ */
 static unsigned int write_position_byte = 0;
+
+/**
+ * Füllstand Byte Ausgabepuffer
+ */
 static unsigned int write_filling_level_byte = 0;
+
+/**
+ * Schreibposition Bit Ausgabepuffer
+ */
 static unsigned short write_position_bit = 0;
-static unsigned short write_filling_level_bit = 0;
 
 extern void init_in(char text[])
 {
     unsigned int index;
+    // TODO: sizeof ersetzen
     for (index = 0; index < sizeof(text); index++)
     {
         in_buffer[index] = text[index];
@@ -31,6 +77,7 @@ extern void init_in(char text[])
 
 extern void init_out(void)
 {
+    // TODO: Ausgabepuffer leeren
     write_filling_level_byte = 0;
     write_position_byte = 0;
 }
@@ -91,10 +138,11 @@ extern void write_bit(BIT c)
     {
         write_position_bit = 0;
         write_position_byte++;
+        write_filling_level_byte++;
     }
 }
 
-extern void print_out_char_array(unsigned char array[])
+extern void print_out_char_array(char array[])
 {
     for (int i = 0; i < sizeof(array); i++)
     {
