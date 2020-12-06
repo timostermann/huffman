@@ -42,6 +42,11 @@ static unsigned short read_position_bit = 0;
 static unsigned short read_filling_level_bit = 0;
 
 /**
+ * Größe des Eingabe-Arrays
+ */
+static unsigned short size_of_input_array;
+
+/**
  * Ausgabepuffer
  */
 static unsigned char out_buffer[BUF_SIZE] = {0};
@@ -64,8 +69,7 @@ static unsigned short write_position_bit = 0;
 extern void init_in(char text[])
 {
     unsigned int index;
-    // TODO: sizeof ersetzen
-    for (index = 0; index < sizeof(text); index++)
+    for (index = 0; index < size_of_input_array; index++)
     {
         in_buffer[index] = text[index];
     }
@@ -77,7 +81,9 @@ extern void init_in(char text[])
 
 extern void init_out(void)
 {
-    // TODO: Ausgabepuffer leeren
+    for (int i = 0; i < sizeof(out_buffer); ++i) {
+        out_buffer[i] = 0;
+    }
     write_filling_level_byte = 0;
     write_position_byte = 0;
 }
@@ -92,7 +98,7 @@ extern void get_out_buffer(char text[])
 
 extern bool has_next_char(void)
 {
-    return read_position_byte <= read_filling_level_byte;
+    return read_position_byte < read_filling_level_byte;
 }
 
 extern unsigned char read_char(void)
@@ -144,8 +150,17 @@ extern void write_bit(BIT c)
 
 extern void print_out_char_array(char array[])
 {
-    for (int i = 0; i < sizeof(array); i++)
+    printf("\n");
+    for (int i = 0; i < size_of_input_array; i++)
     {
         printf("%c ", array[i]);
     }
+}
+
+extern void set_size_of_input_array(unsigned short size) {
+    size_of_input_array = size;
+}
+
+extern unsigned short get_size_of_input_array(void) {
+    return size_of_input_array;
 }

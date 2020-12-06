@@ -28,10 +28,9 @@ int main()
 {
     // TODO
     char in[] = "aAbBcCdDeEfFgGhHiIjJkKlLmMnNoOpPqQrRsStTuUvVwWxX";
+    set_size_of_input_array(sizeof(in));
     print_out_char_array(in);
-    printf("\nsize: %d \n", sizeof(in));
     char out[50] = {0};
-    printf("size: %d \n", sizeof(out));
 
     test_rd_chars_wr_bits(in, out);
     strcmp(out, "UUUUUU");

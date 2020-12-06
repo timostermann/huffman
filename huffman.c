@@ -4,9 +4,6 @@
 
 extern void test_rd_chars_wr_bits(char in[], char out[])
 {
-    printf("size: %d \n", sizeof(in));
-    printf("size: %d \n", sizeof(out));
-
     init_in(in);
     init_out();
 
