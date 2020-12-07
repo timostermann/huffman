@@ -44,6 +44,7 @@ extern bool has_next_char(void);
 
 /**
  * Liefert das nächste Zeichen aus dem Eingabepuffer.
+ * Vorbedingung: has_next_char() liefert true.
  * @return das nächste Zeichen
  */
 extern unsigned char read_char(void);
