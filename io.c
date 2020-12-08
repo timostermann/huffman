@@ -6,7 +6,7 @@
  * @param BYTE - zu untersuchendes Byte
  * @param POS - Position des Bits (0-7)
  */
-#define GET_BIT(BYTE, POS) ((BYTE & (0x01 << POS)) > 0)
+#define GET_BIT(BYTE, POS) ((BYTE & (0x01 << (7 - POS))) > 0)
 
 /**
 * setzt Bitwert an bestimmter Position in einem Byte
@@ -14,7 +14,7 @@
 * @param BIT - zu setzendes Bit
 * @param POS - Position des Bits (0-7)
 */
-#define PUT_BIT(BYTE, BIT, POS) BIT == BIT0 ? (BYTE & ~(0x01 << POS)) : (BYTE | (0x01 << POS))
+#define PUT_BIT(BYTE, BIT, POS) BIT == BIT0 ? (BYTE & ~(0x01 << (7 - POS))) : (BYTE | (0x01 << (7 - POS)))
 
 /**
  * Eingabepuffer
@@ -68,7 +68,6 @@ extern void init_in(char text[])
     read_byte_position = 0;
     read_bit_position = 0;
     read_bit_filling_level = 7;
-    // TODO: Konsistenz überprüfen
     read_byte_filling_level = index;
 }
 
@@ -108,7 +107,6 @@ extern void write_char(unsigned char c)
 
 extern bool has_next_bit(void)
 {
-    // TODO
     return has_next_char()
            && read_bit_position <= read_bit_filling_level;
 }
@@ -136,15 +134,5 @@ extern void write_bit(BIT c)
     {
         write_bit_position = 0;
         write_byte_position++;
-    }
-}
-
-extern void print_out_char_array(char array[])
-{
-    printf("\n");
-    int i = 0;
-    while (array[i] != '\0') {
-        printf("%c ", array[i]);
-        i++;
     }
 }

@@ -73,10 +73,4 @@ extern BIT read_bit(void);
  */
 extern void write_bit(BIT c);
 
-/**
-* Gibt Char-Array in der Konsole aus.
-* @param array - auszugebenes Array
-*/
-extern void print_out_char_array(char array[]);
-
 #endif //HUFFMAN_IO_H
