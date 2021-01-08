@@ -1,6 +1,6 @@
 /**
  * @file
- * Dieses Modul beihnaltet allgemeine Definitionen.
+ * Dieses Modul beinhaltet allgemeine Definitionen.
  *
  * @author  Tim Ostermann
  * @date    2020-12-05
@@ -18,11 +18,22 @@ typedef enum
     BIT1 = 1
 } BIT;
 
+typedef enum
+{
+    SUCCESS = 0,
+    UNKNOWN_EXCEPTION = 1,
+    ARGUMENTS_EXCEPTION = 2,
+    IO_EXCEPTION = 3,
+    COMPRESSION_EXCEPTION = 4
+} EXIT;
+
 /**
  * Gibt an, ob System im Debug-Modus läuft
  */
  /* @unused@ */
 static const bool DEBUG = true;
+
+#define MAX_LENGTH_FILENAME 100
 
 /**
  * Debug-Ausgabe von Ausdrücken, die eine ganze Zahl liefern
