@@ -37,8 +37,8 @@ int main(int argc, char *argv[])
     bool print_info = false;
     bool help = false;
     int level = 2;
-    char outfile[MAX_LENGTH_FILENAME];
-    char infile[MAX_LENGTH_FILENAME];
+    char outfile[MAX_LENGTH_FILENAME] = {'\0'};
+    char infile[MAX_LENGTH_FILENAME]= {'\0'};
 
     EXIT exit = read_arguments(argv, argc, &compress, &print_info, &help, &level, &outfile, &infile);
 
@@ -162,8 +162,7 @@ EXIT read_arguments(char *argv[], int argc, bool *compress, bool *print_info, bo
         {
             return ARGUMENTS_EXCEPTION;
         }
-        //strncpy(*outfile, *(argv[argument_index_o + 1]), strlen(argv[argument_index_o + 1]));
-        outfile[strlen(argv[argument_index_o + 1])] = '\0';
+        strncpy(outfile, argv[argument_index_o + 1], strlen(argv[argument_index_o + 1]));
     }
 
     // Bestimme Name der Eingabedatei
@@ -178,8 +177,7 @@ EXIT read_arguments(char *argv[], int argc, bool *compress, bool *print_info, bo
     {
         return ARGUMENTS_EXCEPTION;
     }
-    //strncpy(*infile, *(argv[argc - 1]), strlen(argv[argc - 1]));
-    infile[strlen(argv[argc - 1])] = '\0';
+    strncpy(infile, argv[argc - 1], strlen(argv[argc - 1]));
 
     if (strcmp(infile, outfile) == 0)
     {
