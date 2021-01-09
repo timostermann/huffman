@@ -1,5 +1,6 @@
 #include "io.h"
 #include <stdio.h>
+#include <string.h>
 
 /**
  * liefert Bitwert an bestimmter Position in einem Byte
@@ -56,19 +57,22 @@ static unsigned int write_byte_position = 0;
  */
 static unsigned short write_bit_position = 0;
 
-extern void init_in(char text[])
-{
-    // fill in_buffer with values of text
-    unsigned int index = 0;
-    while (text[index] != '\0') {
-        in_buffer[index] = text[index];
-        index++;
-    }
+/**
+ * Eingabestream
+ */
+static FILE *p_infile;
 
+/**
+ * Ausgabestream
+ */
+static FILE *p_outfile;
+
+extern void init_in()
+{
     read_byte_position = 0;
     read_bit_position = 0;
-    read_bit_filling_level = 7;
-    read_byte_filling_level = index;
+    read_bit_filling_level = 0;
+    read_byte_filling_level = 0;
 }
 
 extern void init_out(void)
@@ -77,14 +81,43 @@ extern void init_out(void)
     write_bit_position = 0;
 }
 
-extern void get_out_buffer(char text[])
+extern void open_infile(char in_filename[])
 {
-    // write values of out_buffer in text
-    for (int i = 0; i < write_byte_position; i++)
-    {
-        text[i] = out_buffer[i];
-    }
-    text[write_byte_position] = '\0';
+    p_infile = fopen(in_filename, "r");
+    init_in();
+}
+
+extern void open_outfile(char out_filename[])
+{
+    p_outfile = fopen(out_filename, "wb");
+    init_out();
+}
+
+extern void close_infile(void)
+{
+    fclose(p_infile);
+}
+
+extern void close_outfile(void)
+{
+    fclose(p_outfile);
+}
+
+extern size_t read_infile(void)
+{
+    init_in();
+    size_t size = fread(in_buffer, sizeof(char), BUF_SIZE, p_infile);
+    read_byte_filling_level = size;
+    read_bit_filling_level = 7;
+    SPRINT(in_buffer);
+    return size;
+}
+
+extern void write_outfile(void)
+{
+    fwrite(out_buffer, sizeof(char), write_byte_position, p_outfile);
+    SPRINT(out_buffer);
+    init_out();
 }
 
 extern bool has_next_char(void)

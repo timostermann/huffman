@@ -8,6 +8,7 @@
  */
 
 #include <stdbool.h>
+#include <ntsid.h>
 #include "huffman_common.h"
 
 #ifndef HUFFMAN_IO_H
@@ -19,10 +20,9 @@
 #define BUF_SIZE 4096
 
 /**
- * Initialisiert Eingabepuffer mit übergebenem Vektor.
- * @param text - Vektor
+ * Initialisiert Eingabepuffer.
  */
-extern void init_in(char text[]);
+extern void init_in(void);
 
 /**
  * Initialisiert Ausgabepuffer.
@@ -30,10 +30,37 @@ extern void init_in(char text[]);
 extern void init_out(void);
 
 /**
- * Schreibt Werte des Ausgabevektors in übergebenen Vektor.
- * @param text - Vektor, der mit den Werten des Ausgabepuffers gefüllt wird
+ * Öffnet Eingabedatei.
+ * @param in_filename - Name der Eingabedatei
  */
-extern void get_out_buffer(char text[]);
+extern void open_infile(char in_filename[]);
+
+/**
+ * Öffnet Ausgabedatei.
+ * @param out_filename - Name der Ausgabedatei
+ */
+extern void open_outfile(char out_filename[]);
+
+/**
+ * Schließt Eingabedatei.
+ */
+extern void close_infile(void);
+
+/**
+ * Schließt Ausgabedatei.
+ */
+extern void close_outfile(void);
+
+/**
+ * Liest einen Block aus Eingabedatei.
+ * @return Anzahl eingelesener Werte
+ */
+extern size_t read_infile(void);
+
+/**
+ * Schreibt einen Block in Ausgabedatei.
+ */
+extern void write_outfile(void);
 
 /**
  * Gibt an, ob noch weitere Zeichen aus dem Eingabepuffer mit read_char()

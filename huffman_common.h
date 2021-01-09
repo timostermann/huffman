@@ -9,6 +9,8 @@
 #ifndef HUFFMAN_HUFFMAN_COMMON_H
 #define HUFFMAN_HUFFMAN_COMMON_H
 
+#include <stdbool.h>
+
 /**
  * Repräsentation Bitzustände
  */
@@ -18,6 +20,9 @@ typedef enum
     BIT1 = 1
 } BIT;
 
+/**
+ * Exit-Codes
+ */
 typedef enum
 {
     SUCCESS = 0,
@@ -30,36 +35,35 @@ typedef enum
 /**
  * Gibt an, ob System im Debug-Modus läuft
  */
- /* @unused@ */
-static const bool DEBUG = true;
+static const bool DEBUG = false;
 
 #define MAX_LENGTH_FILENAME 100
 
 /**
  * Debug-Ausgabe von Ausdrücken, die eine ganze Zahl liefern
  */
-#define DPRINT(P) if(DEBUG) printf(#P "= %d\n", P)
+#define DPRINT(P) if(DEBUG) printf(#P " = %d\n", P)
 
 /**
  * Debug-Ausgabe von Ausdrücken, die eine Zeichenkette liefern
  */
-#define SPRINT(P) if(DEBUG) printf(#P "= \"%s\"\n", P)
+#define SPRINT(P) if(DEBUG) printf(#P " = \"%s\"\n", P)
 
 /**
  * Debug-Ausgabe von Ausdrücken, die ein Zeichen liefern
  */
-#define CPRINT(P) if(DEBUG) printf(#P "= %c\n", P)
+#define CPRINT(P) if(DEBUG) printf(#P " = %c\n", P)
 
 /**
  * Debug-Ausgabe von Ausdrücken, die eine ganze Zahl liefern
  * (hexadezimale Ausgabe)
  */
-#define XPRINT(P) if(DEBUG) printf(#P "= %x\n", P)
+#define XPRINT(P) if(DEBUG) printf(#P " = %x\n", P)
 
 /**
  * Debug-Ausgabe von Ausdrücken, die eine Gleitkommazahl liefern (float)
  */
-#define FPRINT(P) if(DEBUG) printf(#P "= %f\n", P)
+#define FPRINT(P) if(DEBUG) printf(#P " = %f\n", P)
 
 /**
  * Debug-Ausgabe von Ausdrücken, die eine Gleitkommazahl liefern (double)
