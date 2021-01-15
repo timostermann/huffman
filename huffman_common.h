@@ -35,9 +35,12 @@ typedef enum
 /**
  * Gibt an, ob System im Debug-Modus läuft
  */
-static const bool DEBUG = false;
+#define DEBUG false
 
-#define MAX_LENGTH_FILENAME 100
+/**
+ * Maximale Länge des Filenamen
+ */
+#define MAX_LENGTH_FILENAME 2000
 
 /**
  * Debug-Ausgabe von Ausdrücken, die eine ganze Zahl liefern

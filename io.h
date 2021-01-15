@@ -8,7 +8,6 @@
  */
 
 #include <stdbool.h>
-#include <ntsid.h>
 #include "huffman_common.h"
 
 #ifndef HUFFMAN_IO_H
@@ -32,14 +31,16 @@ extern void init_out(void);
 /**
  * Öffnet Eingabedatei.
  * @param in_filename - Name der Eingabedatei
+ * @return Exit-Code
  */
-extern void open_infile(char in_filename[]);
+extern EXIT open_infile(char in_filename[]);
 
 /**
  * Öffnet Ausgabedatei.
  * @param out_filename - Name der Ausgabedatei
+ * @return Exit-Code
  */
-extern void open_outfile(char out_filename[]);
+extern EXIT open_outfile(char out_filename[]);
 
 /**
  * Schließt Eingabedatei.
@@ -50,17 +51,6 @@ extern void close_infile(void);
  * Schließt Ausgabedatei.
  */
 extern void close_outfile(void);
-
-/**
- * Liest einen Block aus Eingabedatei.
- * @return Anzahl eingelesener Werte
- */
-extern size_t read_infile(void);
-
-/**
- * Schreibt einen Block in Ausgabedatei.
- */
-extern void write_outfile(void);
 
 /**
  * Gibt an, ob noch weitere Zeichen aus dem Eingabepuffer mit read_char()

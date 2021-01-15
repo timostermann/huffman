@@ -23,20 +23,30 @@
 #include <time.h>
 #include <sys/stat.h>
 
+/**
+ * Ausführungsmodi
+ */
+typedef enum
+{
+    NONE = -1,
+    HELP = 0,
+    COMPRESSION = 1,
+    DECOMPRESSION = 2
+} OPERATION_MODE;
 
 /**
  * Liest Eingabeparameter des Konsolenaufrufs aus.
  * @param argv - Eingabeparameter
  * @param argc - Anzahl Eingabeparameter
- * @param compress - Zeiger auf Komprimierungs-Wahrheitswert
+ * @param operation_mode - Zeiger auf Ausführungsmodus
  * @param print_info - Zeiger auf Wahrheitswert, der Angabe weiterer Informationen repräsentiert
- * @param help - Zeiger auf Wahrheitswert, der Angabe von Programmhilfe repräsentiert
+ * @param should_view_help - Zeiger auf Wahrheitswert, der Angabe von Programmhilfe repräsentiert
  * @param level - Zeiger auf Komprimierungslevel
- * @param outfile - Zeiger auf Ausgabedatei
- * @param infile - Zeiger auf Eingabedatei
+ * @param out_filename - Zeiger auf Ausgabedatei
+ * @param in_filename - Zeiger auf Eingabedatei
  * @return entsprechender Exit-Code
  */
-EXIT read_arguments(char *argv[], int argc, bool *compress, bool *print_info, bool *help, int *level, char *outfile, char *infile);
+static EXIT read_arguments(char *argv[], int argc, OPERATION_MODE *operation_mode, bool *print_info, bool *should_view_help, int *level, char *out_filename, char *in_filename);
 
 /**
  * Sucht nach bestimmten Parameter in den Eingabeparametern.
@@ -45,7 +55,7 @@ EXIT read_arguments(char *argv[], int argc, bool *compress, bool *print_info, bo
  * @param arg - gesuchter Parameter
  * @return Index des Parameters, -1 wenn nicht gefunden
  */
-int search_for_argument(char *argv[], int argc, char *arg);
+static int search_for_argument(char *argv[], int argc, char *arg);
 
 /**
  * Bestimmt Anzahl der vorkommenden legalen Eingabeparameter.
@@ -57,7 +67,7 @@ int search_for_argument(char *argv[], int argc, char *arg);
  * @param argument_index_o - Index des "-o"-Parameters
  * @return Anzahl der legalen Eingabeparameter
  */
-int check_number_of_arguments(int argument_index_c, int argument_index_d, int argument_index_l, int argument_index_h, int argument_index_v, int argument_index_o);
+static int check_number_of_arguments(int argument_index_c, int argument_index_d, int argument_index_l, int argument_index_h, int argument_index_v, int argument_index_o);
 
 /**
  * Hauptmethode des Programms
@@ -67,21 +77,23 @@ int check_number_of_arguments(int argument_index_c, int argument_index_d, int ar
  */
 int main(int argc, char *argv[])
 {
-    clock_t prg_start;
+    // time-taking variables
+    clock_t prg_start = clock();
     clock_t prg_end;
-    prg_start = clock();
 
-    bool compress = NULL;
-    bool print_info = false;
-    bool help = false;
+    // variables for legal arguments
+    OPERATION_MODE operation_mode = NONE;
+    bool should_view_info = false;
+    bool should_view_help = false;
     int level = 2;
-    char outfile[MAX_LENGTH_FILENAME] = {'\0'};
-    char infile[MAX_LENGTH_FILENAME]= {'\0'};
+    char out_filename[MAX_LENGTH_FILENAME] = {'\0'};
+    char in_filename[MAX_LENGTH_FILENAME]= {'\0'};
 
-    EXIT exit = read_arguments(argv, argc, &compress, &print_info, &help, &level, &outfile, &infile);
+    EXIT exit = read_arguments(argv, argc, &operation_mode, &should_view_info, &should_view_help, &level, out_filename, in_filename);
 
-    if (help)
+    if (should_view_help)
     {
+        // print help
         printf("Programmhilfe Huffman:\n"
                "Aufruf: huffman <options> <filename>\n"
                " -c\tDie Eingabedatei wird komprimiert.\n"
@@ -91,83 +103,40 @@ int main(int argc, char *argv[])
                " -v\tGibt Informationen über die Komprimierung bzw. Dekomprimierung aus.\n"
                " -o <outfile>\tLegt den Namen der Ausgabedatei fest. Wird die Option weggelassen, wird der Name der Ausgabedatei standardmäßig festgelegt.\n"
                " -h\tZeigt eine Hilfe an, die die Benutzung des Programms erklärt.\n"
-               " <filename>\tName der Eingabedatei\n\n");
+               " <filename>\tName der Eingabedatei.\n\n");
     }
 
-    if (compress)
+    if (operation_mode == COMPRESSION && exit == SUCCESS)
     {
-        if (strcmp(outfile, infile) == 0)
-        {
-            strcat(outfile, ".hc");
-        }
-        test_rd_chars_wr_bits(infile, outfile);
+        exit = test_rd_chars_wr_bits(in_filename, out_filename);
     }
-    else if (compress != NULL)
+    else if (operation_mode == DECOMPRESSION && exit == SUCCESS)
     {
-        if (strcmp(outfile, infile) == 0)
-        {
-            strcat(outfile, ".hd");
-        }
-        test_rd_bits_wr_chars(infile, outfile);
+        exit = test_rd_bits_wr_chars(in_filename, out_filename);
     }
 
-    if (print_info)
+    if (should_view_info && exit == SUCCESS)
     {
+        // view further information
         struct stat attribut;
-        stat(infile, &attribut);
+        stat(in_filename, &attribut);
         printf(" - Größe der Eingabedatei %s (byte): %d\n",
-               infile, attribut.st_size);
+               in_filename, (int) attribut.st_size);
 
-        stat(outfile, &attribut);
+        stat(out_filename, &attribut);
         printf(" - Größe der Ausgabedatei %s (byte): %d\n",
-               outfile, attribut.st_size);
+               out_filename, (int) attribut.st_size);
         prg_end = clock();
         printf(" - Die Laufzeit betrug %.4f Sekunden\n",
                (float) (prg_end - prg_start) / CLOCKS_PER_SEC);
     }
 
-/*    // read chars write bits alphabet in order
-    char in_alph_ord[] = "aAbBcCdDeEfFgGhHiIjJkKlLmMnNoOpPqQrRsStTuUvVwWxX";
-    char out_alph_ord[50] = {0};
-    test_rd_chars_wr_bits(in_alph_ord, out_alph_ord);
-    SPRINT(in_alph_ord);
-    SPRINT(out_alph_ord);
-    printf("\n");
-    assert(strcmp(out_alph_ord, "UUUUUU") == 0);
-
-    // read chars write bits alphabet in order
-    char in_alph[] = "abCdefGHijKlmnOPqrStuvWXyzAbcdEF";
-    char out_alph[50] = {0};
-    test_rd_chars_wr_bits(in_alph, out_alph);
-    SPRINT(in_alph);
-    SPRINT(out_alph);
-    printf("\n");
-    assert(strcmp(out_alph, "####") == 0);
-
-    // read bits write chars numbers in order
-    char in_num_ord[] = "1234567890";
-    char out_num_ord[100] = {0};
-    test_rd_bits_wr_chars(in_num_ord, out_num_ord);
-    SPRINT(in_num_ord);
-    SPRINT(out_num_ord);
-    printf("\n");
-    assert(strcmp(out_num_ord, "00110001001100100011001100110100001101010011011000110111001110000011100100110000") == 0);
-
-    // read bits write chars numbers out of order
-    char in_num[] = "0192837465";
-    char out_num[100] = {0};
-    test_rd_bits_wr_chars(in_num, out_num);
-    SPRINT(in_num);
-    SPRINT(out_num);
-    printf("\n");
-    assert(strcmp(out_num, "00110000001100010011100100110010001110000011001100110111001101000011011000110101") == 0);
-    return 0;
-*/
     return exit;
 }
 
-EXIT read_arguments(char *argv[], int argc, bool *compress, bool *print_info, bool *help, int *level, char *outfile, char *infile)
+static EXIT read_arguments(char *argv[], int argc, OPERATION_MODE *operation_mode, bool *should_view_info, bool *should_view_help, int *level, char *out_filename, char *in_filename)
 {
+    // indices of legal arguments
     int argument_index_c = search_for_argument(argv, argc, "-c");
     int argument_index_d = search_for_argument(argv, argc, "-d");
     int argument_index_v = search_for_argument(argv, argc, "-v");
@@ -178,15 +147,15 @@ EXIT read_arguments(char *argv[], int argc, bool *compress, bool *print_info, bo
     // determine, if program help shall be viewed
     if (argument_index_h != -1)
     {
-        *help = true;
+        *should_view_help = true;
     }
     else
     {
-        *help = false;
+        *should_view_help = false;
     }
 
     // get operation mode
-    if (argument_index_c == -1 && argument_index_d == -1 && !*help)
+    if (argument_index_c == -1 && argument_index_d == -1 && !*should_view_help)
     {
         return ARGUMENTS_EXCEPTION;
     }
@@ -194,67 +163,52 @@ EXIT read_arguments(char *argv[], int argc, bool *compress, bool *print_info, bo
     {
         if (argument_index_c > argument_index_d)
         {
-            *compress = true;
+            *operation_mode = COMPRESSION;
         }
         else
         {
-            *compress = false;
+            *operation_mode = DECOMPRESSION;
         }
     }
     else if (argument_index_c != -1)
     {
-        *compress = true;
+        *operation_mode = COMPRESSION;
     }
     else if (argument_index_d != -1)
     {
-        *compress = false;
+        *operation_mode = DECOMPRESSION;
     }
     else
     {
+        *operation_mode = HELP;
         return SUCCESS;
     }
 
     // determine, if further information of the (de-)compression shall be viewed
     if (argument_index_v != -1)
     {
-        *print_info = true;
+        *should_view_info = true;
     }
     else
     {
-        *print_info = false;
+        *should_view_info = false;
     }
 
     // determine level of compression
-    if (argument_index_d == -1 && argument_index_l != -1)
+    if (*operation_mode == COMPRESSION && argument_index_l != -1)
     {
         if (strlen(argv[argument_index_l]) == 3)
         {
             *level = (int) (argv[argument_index_l][2] - '0');
+            if (*level < 1 || *level > 9)
+            {
+                return ARGUMENTS_EXCEPTION;
+            }
         }
         else
         {
            return ARGUMENTS_EXCEPTION;
         }
-    }
-
-    // determine name of outfile
-    if (argument_index_o != -1)
-    {
-        if (argument_index_o + 1 == argument_index_c
-            || argument_index_o + 1 == argument_index_d
-            || argument_index_o + 1 == argument_index_h
-            || argument_index_o + 1 == argument_index_l
-            || argument_index_o + 1 == argument_index_v
-            || argument_index_o + 2 >= argc
-            )
-        {
-            return ARGUMENTS_EXCEPTION;
-        }
-        strncpy(outfile, argv[argument_index_o + 1], strlen(argv[argument_index_o + 1]));
-    }
-    else
-    {
-        strncpy(outfile, infile, strlen(infile));
     }
 
     // determine name of infile
@@ -269,9 +223,45 @@ EXIT read_arguments(char *argv[], int argc, bool *compress, bool *print_info, bo
     {
         return ARGUMENTS_EXCEPTION;
     }
-    strncpy(infile, argv[argc - 1], strlen(argv[argc - 1]));
+    else
+    {
+        strncpy(in_filename, argv[argc - 1], MAX_LENGTH_FILENAME);
+    }
 
-    if (strcmp(infile, outfile) == 0)
+    // determine name of outfile
+    if (argument_index_o != -1)
+    {
+        if (argument_index_o + 1 == argument_index_c
+            || argument_index_o + 1 == argument_index_d
+            || argument_index_o + 1 == argument_index_h
+            || argument_index_o + 1 == argument_index_l
+            || argument_index_o + 1 == argument_index_v
+            || argument_index_o + 2 >= argc
+            || strlen(argv[argument_index_o + 1]) > MAX_LENGTH_FILENAME - 4
+            )
+        {
+            return ARGUMENTS_EXCEPTION;
+        }
+        strncpy(out_filename, argv[argument_index_o + 1], MAX_LENGTH_FILENAME - 4);
+    }
+    else
+    {
+        strncpy(out_filename, in_filename, MAX_LENGTH_FILENAME - 4);
+        if (*operation_mode == COMPRESSION)
+        {
+            strncat(out_filename, ".hc", MAX_LENGTH_FILENAME);
+        }
+        else if (*operation_mode == DECOMPRESSION)
+        {
+            strncat(out_filename, ".hd", MAX_LENGTH_FILENAME);
+        }
+        else
+        {
+            return ARGUMENTS_EXCEPTION;
+        }
+    }
+
+    if (strcmp(in_filename, out_filename) == 0)
     {
         return ARGUMENTS_EXCEPTION;
     }
@@ -284,7 +274,7 @@ EXIT read_arguments(char *argv[], int argc, bool *compress, bool *print_info, bo
     return SUCCESS;
 }
 
-int search_for_argument(char *argv[], int argc, char *arg)
+static int search_for_argument(char *argv[], int argc, char *arg)
 {
     int argument_index = -1;
 
@@ -299,8 +289,9 @@ int search_for_argument(char *argv[], int argc, char *arg)
     return argument_index;
 }
 
-int check_number_of_arguments(int argument_index_c, int argument_index_d, int argument_index_l, int argument_index_h, int argument_index_v, int argument_index_o)
+static int check_number_of_arguments(int argument_index_c, int argument_index_d, int argument_index_l, int argument_index_h, int argument_index_v, int argument_index_o)
 {
+    // program name and filename already counted
     int arg_count = 2;
 
     if (argument_index_c != -1 && argument_index_d != -1)

@@ -18,6 +18,17 @@
 #define PUT_BIT(BYTE, BIT, POS) BIT == BIT0 ? (BYTE & ~(0x01 << (7 - POS))) : (BYTE | (0x01 << (7 - POS)))
 
 /**
+ * Liest einen Block aus Eingabedatei.
+ * @return Anzahl eingelesener Werte
+ */
+static int read_infile(void);
+
+/**
+ * Schreibt einen Block in Ausgabedatei.
+ */
+static void write_outfile(void);
+
+/**
  * Eingabepuffer
  */
 static unsigned char in_buffer[BUF_SIZE];
@@ -67,7 +78,7 @@ static FILE *p_infile;
  */
 static FILE *p_outfile;
 
-extern void init_in()
+extern void init_in(void)
 {
     read_byte_position = 0;
     read_bit_position = 0;
@@ -81,16 +92,26 @@ extern void init_out(void)
     write_bit_position = 0;
 }
 
-extern void open_infile(char in_filename[])
+extern EXIT open_infile(char in_filename[])
 {
-    p_infile = fopen(in_filename, "r");
+    p_infile = fopen(in_filename, "rb");
     init_in();
+    if (p_infile == NULL)
+    {
+        return IO_EXCEPTION;
+    }
+    return SUCCESS;
 }
 
-extern void open_outfile(char out_filename[])
+extern EXIT open_outfile(char out_filename[])
 {
     p_outfile = fopen(out_filename, "wb");
     init_out();
+    if (p_outfile == NULL)
+    {
+        return IO_EXCEPTION;
+    }
+    return SUCCESS;
 }
 
 extern void close_infile(void)
@@ -103,7 +124,7 @@ extern void close_outfile(void)
     fclose(p_outfile);
 }
 
-extern size_t read_infile(void)
+static int read_infile(void)
 {
     init_in();
     size_t size = fread(in_buffer, sizeof(char), BUF_SIZE, p_infile);
@@ -113,7 +134,7 @@ extern size_t read_infile(void)
     return size;
 }
 
-extern void write_outfile(void)
+static void write_outfile(void)
 {
     fwrite(out_buffer, sizeof(char), write_byte_position, p_outfile);
     SPRINT(out_buffer);
@@ -122,7 +143,19 @@ extern void write_outfile(void)
 
 extern bool has_next_char(void)
 {
-    return read_byte_position < read_byte_filling_level;
+    bool has_next = read_byte_position < read_byte_filling_level;
+
+    if (write_byte_position == BUF_SIZE)
+    {
+        write_outfile();
+    }
+
+    if (!has_next)
+    {
+        write_outfile();
+        has_next = read_infile() > 0;
+    }
+    return has_next;
 }
 
 extern unsigned char read_char(void)
@@ -140,8 +173,20 @@ extern void write_char(unsigned char c)
 
 extern bool has_next_bit(void)
 {
-    return has_next_char()
-           && read_bit_position <= read_bit_filling_level;
+    bool has_next = has_next_char()
+                    && read_bit_position <= read_bit_filling_level;
+
+    if (write_byte_position == BUF_SIZE)
+    {
+        write_outfile();
+    }
+
+    if (!has_next)
+    {
+        write_outfile();
+        has_next = read_infile() > 0;
+    }
+    return has_next;
 }
 
 extern BIT read_bit(void)
