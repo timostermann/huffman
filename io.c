@@ -176,11 +176,6 @@ extern bool has_next_bit(void)
     bool has_next = has_next_char()
                     && read_bit_position <= read_bit_filling_level;
 
-    if (write_byte_position == BUF_SIZE)
-    {
-        write_outfile();
-    }
-
     if (!has_next)
     {
         write_outfile();

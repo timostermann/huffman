@@ -28,8 +28,8 @@ extern EXIT test_rd_chars_wr_bits(char in_filename[], char out_filename[])
     return SUCCESS;
 }
 
-extern EXIT test_rd_bits_wr_chars(char in_filename[], char out_filename[]) {
-
+extern EXIT test_rd_bits_wr_chars(char in_filename[], char out_filename[])
+{
     if (open_infile(in_filename) != SUCCESS || open_outfile(out_filename) != SUCCESS)
     {
         return IO_EXCEPTION;
