@@ -220,7 +220,7 @@ static EXIT read_arguments(char *argv[], int argc, OPERATION_MODE *operation_mod
         || argc - 1 == argument_index_v
         || argc - 1 == argument_index_o
         || argc - 2 == argument_index_o
-        || strlen(argv[argument_index_o + 1]) > MAX_LENGTH_FILENAME)
+        || strlen(argv[argc - 1]) > MAX_LENGTH_FILENAME)
     {
         return ARGUMENTS_EXCEPTION;
     }
