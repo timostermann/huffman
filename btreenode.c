@@ -1,6 +1,27 @@
 #include "btreenode.h"
 #include <stdio.h>
 
+/**
+ * Implementierung der Datenstruktur für Knoten eines Binärbaumes.
+ */
+typedef struct _BTREE_NODE
+{
+    /**
+     * Inhalt des Knoten.
+     */
+    void *value;
+
+    /**
+     * Linker Nachfolgerknoten.
+     */
+    struct _BTREE_NODE *left_node;
+
+    /**
+     * Rechter Nachfolgerknoten.
+     */
+    struct _BTREE_NODE *right_node;
+} BTREE_NODE;
+
 extern BTREE_NODE *btreenode_new(void *data)
 {
     // create new node, set data

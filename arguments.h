@@ -64,7 +64,7 @@ extern void start_clock(void);
  * @param in_filename - Name der Eingabedatei
  * @param out_filename - Name der Ausgabedatei
  */
-extern void print_further_information(char in_filename[MAX_LENGTH_FILENAME], char out_filename[MAX_LENGTH_FILENAME]);
+extern void print_further_information(char *in_filename, char *out_filename);
 
 
 #endif //HUFFMAN_ARGUMENTS_H

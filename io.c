@@ -1,5 +1,6 @@
 #include "io.h"
 #include <stdio.h>
+#include <stdlib.h>
 #include <string.h>
 
 /**
@@ -46,12 +47,12 @@ static unsigned int read_byte_filling_level = 0;
 /**
  * Lesepostion Bit Eingabepuffer
  */
-static unsigned short read_bit_position = 0;
+static unsigned int read_bit_position = 0;
 
 /**
  * Füllstand Bit Eingabepuffer
  */
-static unsigned short read_bit_filling_level = 0;
+static unsigned int read_bit_filling_level = 0;
 
 /**
  * Ausgabepuffer
@@ -66,7 +67,7 @@ static unsigned int write_byte_position = 0;
 /**
  * Schreibposition Bit Ausgabepuffer
  */
-static unsigned short write_bit_position = 0;
+static unsigned int write_bit_position = 0;
 
 /**
  * Eingabestream
@@ -77,6 +78,22 @@ static FILE *p_infile;
  * Ausgabestream
  */
 static FILE *p_outfile;
+
+/**
+ * Union, mit deren Hilfe man auf die einzelnen Bytes eines Integerwertes zugreifen kann.
+ */
+typedef union
+{
+    /**
+     * Wert als Integer
+     */
+    unsigned int i;
+
+    /**
+     * Wert als Char-Array
+     */
+    unsigned char c[4];
+} CHARS_IN_INT;
 
 extern void init_in(void)
 {
@@ -136,6 +153,10 @@ static int read_infile(void)
 
 static void write_outfile(void)
 {
+    if (write_bit_position != 0)
+    {
+        write_byte_position++;
+    }
     fwrite(out_buffer, sizeof(char), write_byte_position, p_outfile);
     SPRINT(out_buffer);
     init_out();
@@ -171,10 +192,38 @@ extern void write_char(unsigned char c)
     write_byte_position++;
 }
 
+extern unsigned int read_int(void)
+{
+    CHARS_IN_INT *chars_in_int = (CHARS_IN_INT *) malloc(sizeof(CHARS_IN_INT));
+    for (int i = 3; i >= 0; i--)
+    {
+        if (has_next_char())
+        {
+            chars_in_int->c[i] = read_char();
+        }
+    }
+    return chars_in_int->i;
+}
+
+extern void write_int(unsigned int i)
+{
+    CHARS_IN_INT *chars_in_int = (CHARS_IN_INT *) malloc(sizeof(CHARS_IN_INT));
+    chars_in_int->i = i;
+    for (int j = 3; j >= 0; j--)
+    {
+        write_char(chars_in_int->c[j]);
+    }
+}
+
 extern bool has_next_bit(void)
 {
-    bool has_next = has_next_char()
+    bool has_next = read_byte_position < read_byte_filling_level
                     && read_bit_position <= read_bit_filling_level;
+
+    if (write_byte_position == BUF_SIZE)
+    {
+        write_outfile();
+    }
 
     if (!has_next)
     {
@@ -199,6 +248,11 @@ extern BIT read_bit(void)
 
 extern void write_bit(BIT c)
 {
+    if (write_bit_position == 0)
+    {
+        out_buffer[write_byte_position] = '\0';
+    }
+
     out_buffer[write_byte_position] = PUT_BIT(
             out_buffer[write_byte_position], c, write_bit_position);
     write_bit_position++;

@@ -26,23 +26,7 @@
 /**
  * Repräsentation eines Binärbaumes.
  */
-typedef struct
-{
-    /**
-     * Wurzelknoten des Binärbaumes.
-     */
-    BTREE_NODE *root;
-
-    /**
-     * Funktion zum Löschen des Inhalts eines Binärbaumknotens.
-     */
-    DESTROY_DATA_FCT destroy_data_func;
-
-    /**
-     * Funktion zur Ausgabe des Inhalts eines Binärbaumknotens.
-     */
-    PRINT_DATA_FCT print_data_func;
-} BTREE;
+typedef struct _BTREE BTREE;
 
 /* ===========================================================================
  * Funktionsprototypen

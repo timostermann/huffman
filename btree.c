@@ -2,6 +2,27 @@
 #include <stdio.h>
 
 /**
+ * Implementierung der Datenstruktur für Binärbäume.
+ */
+typedef struct _BTREE
+{
+    /**
+     * Wurzelknoten des Binärbaumes.
+     */
+    BTREE_NODE *root;
+
+    /**
+     * Funktion zum Löschen des Inhalts eines Binärbaumknotens.
+     */
+    DESTROY_DATA_FCT destroy_data_func;
+
+    /**
+     * Funktion zur Ausgabe des Inhalts eines Binärbaumknotens.
+     */
+    PRINT_DATA_FCT print_data_func;
+} BTREE;
+
+/**
  * Gibt Unterbaum des Binärbaumes aus.
  * @param node          Wurzel des Unterbaumes
  * @param depth         Tiefe des Unterbaumes im Binärbaum
@@ -78,9 +99,8 @@ extern BTREE_NODE *btree_get_root(BTREE *tree)
 
 extern BTREE *btree_merge(BTREE *left, BTREE *right, void *data)
 {
-    // create new root node and new tree with left trees' functions
-    BTREE_NODE *new_root = btreenode_new(data);
-    BTREE *new_tree = btree_new(new_root->value, left->destroy_data_func, left->print_data_func);
+    // create new tree with left trees' functions
+    BTREE *new_tree = btree_new(data, left->destroy_data_func, left->print_data_func);
 
     // set rood node of left and right tree as left and right child nodes
     btreenode_set_left(new_tree->root, left->root);

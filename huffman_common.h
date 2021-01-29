@@ -43,6 +43,11 @@ typedef enum
 #define MAX_LENGTH_FILENAME 2000
 
 /**
+ * Anzahl Elemente, die reserviert/gelöscht werden
+ */
+#define NUM_OF_ELEMENTS 10
+
+/**
  * Debug-Ausgabe von Ausdrücken, die eine ganze Zahl liefern
  */
 #define DPRINT(P) if(DEBUG) printf(#P " = %d\n", P)

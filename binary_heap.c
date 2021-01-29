@@ -1,11 +1,7 @@
 #include "binary_heap.h"
+#include "huffman_common.h"
 #include <stdlib.h>
 #include <stdio.h>
-
-/**
- * Anzahl Elemente, die reserviert/gelöscht werden
- */
-#define NUM_OF_ELEMENTS 5
 
  /**
   * Vertauscht zwei Heap-Elemente an den angegebenen Indizes.

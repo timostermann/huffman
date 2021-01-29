@@ -26,23 +26,7 @@
 /**
  * Knoten eines Binärbaumes.
  */
-typedef struct _BTREE_NODE
-{
-    /**
-     * Inhalt des Knoten.
-     */
-    void *value;
-
-    /**
-     * Linker Nachfolgerknoten.
-     */
-    struct _BTREE_NODE *left_node;
-
-    /**
-     * Rechter Nachfolgerknoten.
-     */
-    struct _BTREE_NODE *right_node;
-} BTREE_NODE;
+typedef struct _BTREE_NODE BTREE_NODE;
 
 /**
  * Funktionsprototyp zum Löschen des Inhalts eines Binärbaumknotens.
@@ -80,7 +64,8 @@ extern BTREE_NODE *btreenode_clone(BTREE_NODE *node);
 /**
  * Liefert true, wenn die beiden übergebenen Knoten dieselben Daten beinhalten
  * und ihre Nachfolgerknoten ebenfalls gleich sind (bzgl. dieser Funktion).
- * 
+ * Wenn beide Knoten NULL sind, wird false zurückgegeben.
+ *
  * @param node1     der erste zu vergleichende Knoten
  * @param node2     der zweite zu vergleichende Knoten
  * @return          true, wenn die beiden Knoten gleich sind, false sonst

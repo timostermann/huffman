@@ -73,6 +73,18 @@ extern unsigned char read_char(void);
 extern void write_char(unsigned char c);
 
 /**
+ * Liefert den nächsten Integerwert aus dem Eingabepuffer.
+ * @return den nächsten Integerwert
+ */
+extern unsigned int read_int(void);
+
+/**
+ * Schreibt Integerwert an die nächste freie Position im Ausgabepuffer.
+ * @param i - zu schreibender Integerwert
+ */
+extern void write_int(unsigned int i);
+
+/**
  * Gibt an, ob noch weitere Bits aus dem Eingabepuffer gelesen werden können.
  * @return Wahrheitswert
  */

@@ -4,6 +4,9 @@
 #include <sys/stat.h>
 #include <time.h>
 
+/**
+ * Variable zum Festhalten der Startzeit des Programms.
+ */
 static clock_t prg_start;
 
 extern EXIT read_arguments(char *argv[], int argc, OPERATION_MODE *operation_mode, bool *should_view_info, bool *should_view_help, int *level, char *out_filename, char *in_filename)
@@ -218,7 +221,7 @@ extern void start_clock(void)
     prg_start = clock();
 }
 
-extern void print_further_information(char in_filename[MAX_LENGTH_FILENAME], char out_filename[MAX_LENGTH_FILENAME])
+extern void print_further_information(char *in_filename, char *out_filename)
 {
     struct stat attribut;
     stat(in_filename, &attribut);

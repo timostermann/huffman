@@ -19,6 +19,8 @@
 #include "huffman_common.h"
 #include "arguments.h"
 
+// TODO filenames als Pointer
+
 /**
  * Hauptmethode des Programms
  * @param argv - Eingabeparameter
@@ -46,11 +48,11 @@ int main(int argc, char *argv[])
 
     if (operation_mode == COMPRESSION && exit == SUCCESS)
     {
-        exit = test_rd_chars_wr_bits(in_filename, out_filename);
+        exit = compress(in_filename, out_filename);
     }
     else if (operation_mode == DECOMPRESSION && exit == SUCCESS)
     {
-        exit = test_rd_bits_wr_chars(in_filename, out_filename);
+        exit = decompress(in_filename, out_filename);
     }
 
     if (should_view_info && exit == SUCCESS)

@@ -14,6 +14,25 @@
 /* ------------------------------------------------------------------------- */
 
 /* ===========================================================================
+ * Strukturdefinitionen
+ * ======================================================================== */
+
+/**
+ * Setzt Wörter mit einer Häufigkeit in Beziehung
+ */
+typedef struct
+{
+    /**
+     * Komponente für das Wort
+     */
+    unsigned char word;
+    /**
+     * Komponente für die Anzahl der Wortvorkommen
+     */
+    int count;
+} FREQUENCY;
+
+/* ===========================================================================
  * Funktionsprototypen
  * ======================================================================== */
 
@@ -25,14 +44,14 @@
  * @param count     die abzulegende Häufigkeit
  * @return          die neu erzeugte Struktur
  */
-extern struct FREQUENCY *frequency_create(const char *word, const int count);
+extern FREQUENCY *frequency_create(const unsigned char word, const int count);
 
 /**
  * Löscht die Struktur und ihren Inhalt. Setzt den übergebenen Zeiger auf NULL.
  *
  * @param pp_frequency - die zu löschende Struktur
  */
-extern void frequency_destroy(struct FREQUENCY **pp_frequency);
+extern void frequency_destroy(FREQUENCY **pp_frequency);
 
 /**
  * Liefert eine neue Kopie des Worts der übergebenen Frequency-Struktur.
@@ -42,7 +61,7 @@ extern void frequency_destroy(struct FREQUENCY **pp_frequency);
  *                      NULL, wenn keine Struktur übergeben wurde oder die
  *                      Struktur kein Wort enthült.
  */
-extern char *frequency_get_word(const struct FREQUENCY *p_frequency);
+extern unsigned char frequency_get_word(const FREQUENCY *p_frequency);
 
 /**
  * Liefert die Häufigkeit der übergebenen Frequency-Struktur.
@@ -51,7 +70,7 @@ extern char *frequency_get_word(const struct FREQUENCY *p_frequency);
  * @return              Häufigkeit der übergebenen Frequency-Struktur oder -1,
  *                      wenn keine Struktur übergeben wurde.
  */
-extern int frequency_get_count(const struct FREQUENCY *p_frequency);
+extern int frequency_get_count(const FREQUENCY *p_frequency);
 
 /**
  * ändert das Wort der übergebenen Struktur. Ist das übergebene Wort gleich
@@ -60,8 +79,8 @@ extern int frequency_get_count(const struct FREQUENCY *p_frequency);
  * @param p_frequency   Zeiger auf die zu ändernde Struktur
  * @param word          das einzutragende Wort
  */
-extern void frequency_set_word(struct FREQUENCY *p_frequency, 
-                               const char *word);
+extern void frequency_set_word(FREQUENCY *p_frequency, 
+                               const unsigned char word);
 
 /**
  * ändert die Häufigkeit in der übergebenen Struktur.
@@ -69,7 +88,7 @@ extern void frequency_set_word(struct FREQUENCY *p_frequency,
  * @param p_frequency   - Zeiger auf die zu ändernde Struktur
  * @param count         - die einzutragende Häufigkeit
  */
-extern void frequency_set_count(struct FREQUENCY *p_frequency, 
+extern void frequency_set_count(FREQUENCY *p_frequency,
                                 const int count);
 
 /**
@@ -81,8 +100,8 @@ extern void frequency_set_count(struct FREQUENCY *p_frequency,
  * @param p_frequency2 zweite der zu vergleichenden Strukturen
  * @return 0, wenn beide Strukturen gleich sind, und 1, sonst
  */
-extern int frequency_compare(const struct FREQUENCY *p_frequency1, 
-                             const struct FREQUENCY *p_frequency2);
+extern int frequency_compare(const FREQUENCY *p_frequency1,
+                             const FREQUENCY *p_frequency2);
 
 /**
  * Gibt eine Textdarstellung der übergebenen Struktur als String aus.
@@ -90,14 +109,14 @@ extern int frequency_compare(const struct FREQUENCY *p_frequency1,
  * @param p_frequency   die auszugebende Struktur
  * @return              Textdarstellung der Struktur
  */
-extern char *frequency_get_string(const struct FREQUENCY *p_frequency);
+extern char *frequency_get_string(const FREQUENCY *p_frequency);
 
 /**
  * Gibt die Daten der übergebenen Struktur auf dem Bildschirm aus.
  * 
  * @param p_frequency   die auszugebende Struktur
  */
-extern void frequency_print(const struct FREQUENCY *p_frequency);
+extern void frequency_print(const FREQUENCY *p_frequency);
 
 /* ------------------------------------------------------------------------ */
 #endif
