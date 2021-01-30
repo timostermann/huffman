@@ -59,7 +59,7 @@ static unsigned int freq_filling_level;
  * @param node - Knoten des Binärbaumes
  * @param code - Huffman-Code
  */
-static void get_code_table(BTREE_NODE *node, char *code);
+static EXIT get_code_table(BTREE_NODE *node, char *code);
 
 /**
  * Liefert Index des Eintrags der Huffman-Code-Tabelle, dessen Zeichenkette dem Parameter-Code entspricht.
@@ -70,7 +70,7 @@ static int get_code_table_index_by_code(char *code);
 
 /**
  * Liefert Index des Eintrags der Huffman-Code-Tabelle, dessen Zeichen dem Parameter-Zeichen entspricht.
- * @param code - Zeichenkette der gesuchten Huffman-Code-Tabelle
+ * @param next_char - Zeichen der gesuchten Huffman-Code-Tabelle
  * @return -1 falls Huffman-Code-Tabelle keinen entsprechenden Eintrag hat, sonst den Index.
  */
 static char *get_huffman_code_by_char(unsigned char next_char);
@@ -109,13 +109,11 @@ extern EXIT compress(char *in_filename, char *out_filename)
     while (has_next_char())
     {
         unsigned char next_char = read_char();
-        if (freq_filling_level != 0)
-        {
-            index = get_frequency_index_by_char(frequencies, next_char);
-        }
+        index = get_frequency_index_by_char(frequencies, next_char);
 
         if (index != -1)
         {
+            // increase frequency
             frequency_set_count((*(frequencies + index)),
                                 frequency_get_count(*(frequencies + index)) + 1);
         }
@@ -123,10 +121,12 @@ extern EXIT compress(char *in_filename, char *out_filename)
         {
             if (freq_filling_level == freq_size)
             {
+                // increase frequency memory
                 freq_size += NUM_OF_ELEMENTS;
                 frequencies = (FREQUENCY **) realloc(frequencies, (size_t) (sizeof(FREQUENCY *) *freq_size));
             }
 
+            // create and store new frequency
             *(frequencies + freq_filling_level) = frequency_create(next_char, 1);
             freq_filling_level++;
         }
@@ -135,7 +135,7 @@ extern EXIT compress(char *in_filename, char *out_filename)
     // build optimal tree with heap
     heap_init((HEAP_ELEM_COMP) compare_btrees_by_frequency, (HEAP_ELEM_PRINT) btree_print);
 
-    // fill heap with btrees of found frequencies
+    // fill heap with btrees of frequencies
     for (int i = 0; i < freq_filling_level; i++)
     {
         heap_insert(btree_new(*(frequencies + i), (DESTROY_DATA_FCT) frequency_destroy, (PRINT_DATA_FCT) frequency_print));
@@ -144,7 +144,7 @@ extern EXIT compress(char *in_filename, char *out_filename)
     // write number of frequencies
     write_int(freq_filling_level);
 
-    // write frequencies
+    // write the frequencies' character and count
     for (int j = 0; j < freq_filling_level; j++)
     {
         write_char((*(frequencies + j))->word);
@@ -166,7 +166,10 @@ extern EXIT compress(char *in_filename, char *out_filename)
     // fill code table with codes
     huff_filling_level = 0;
     huff_size = NUM_OF_ELEMENTS;
-    get_code_table(btree_get_root(optimal_tree), malloc(sizeof(char) * (size_t) NUM_OF_ELEMENTS));
+    if (get_code_table(btree_get_root(optimal_tree), "") == COMPRESSION_EXCEPTION)
+    {
+        return COMPRESSION_EXCEPTION;
+    }
 
     // read infile and write huffman-codes as bits
     close_infile();
@@ -174,11 +177,11 @@ extern EXIT compress(char *in_filename, char *out_filename)
 
     while (has_next_char())
     {
+        // get code for char
         unsigned char next_char = read_char();
         char *next_code = get_huffman_code_by_char(next_char);
 
-        // write bits in code
-        // TODO fix
+        // write code's bits
         for (int i = 0; i < strlen(next_code); i++)
         {
             if (next_code[i] == '1')
@@ -232,44 +235,45 @@ extern EXIT decompress(char *in_filename, char *out_filename)
                                                  ((FREQUENCY *)(btreenode_get_data(btree_get_root(min_element1))))->count
                                                  + ((FREQUENCY *)(btreenode_get_data(btree_get_root(min_element2))))->count)));
     }
-
     optimal_tree = min_element1;
+
     // fill code table with codes
     huff_filling_level = 0;
     huff_size = NUM_OF_ELEMENTS;
-    get_code_table(btree_get_root(optimal_tree), malloc(sizeof(char) * (size_t) NUM_OF_ELEMENTS));
+    if (get_code_table(btree_get_root(optimal_tree), "") == COMPRESSION_EXCEPTION)
+    {
+        return COMPRESSION_EXCEPTION;
+    }
 
-    char *code = malloc(sizeof(char) * NUM_OF_ELEMENTS);
-    int code_size = NUM_OF_ELEMENTS;
+    char *code = malloc(sizeof(char));
+    int code_size = 1;
     int index;
-    // TODO fix
     while (has_next_bit())
     {
+        // get bit and add to code
         BIT next_bit = read_bit();
 
-        if (strlen(code) == code_size)
-        {
-            code_size += NUM_OF_ELEMENTS;
-            code = realloc(code, sizeof(char) * (size_t) code_size);
-        }
+        code = realloc(code, sizeof(char) * (size_t) code_size);
+        code_size++;
 
         if (next_bit == BIT0)
         {
-            code = strncat(code, "0", 1);
+            code = strncat(code, "0", 2);
         }
         else
         {
-            code = strncat(code, "1", 1);
+            code = strncat(code, "1", 2);
         }
 
         index = get_code_table_index_by_code(code);
         if (index != -1 && char_count > 0)
         {
+            // get and write code's char
             char_count--;
             write_char(huffman_code_get_character(*(huffman_code_table + index)));
-            memset(code, 0, strlen(code));
-            code = realloc(code, sizeof(char) * (size_t) NUM_OF_ELEMENTS);
-            code_size = NUM_OF_ELEMENTS;
+            code = realloc(code, sizeof(char));
+            code[0] = '\0';
+            code_size = 1;
         }
     }
 
@@ -279,11 +283,11 @@ extern EXIT decompress(char *in_filename, char *out_filename)
     return SUCCESS;
 }
 
-static void get_code_table(BTREE_NODE *node, char *code)
+static EXIT get_code_table(BTREE_NODE *node, char *code)
 {
     if (node == NULL)
     {
-        return;
+        return COMPRESSION_EXCEPTION;
     }
 
     if (!btreenode_is_leaf(node))
@@ -291,19 +295,19 @@ static void get_code_table(BTREE_NODE *node, char *code)
         // proceed with left node
         if (btreenode_get_left(node) != NULL)
         {
-            char *new_code = malloc(((int) sizeof(char) * ((int) strlen(code) + 1)));
+            char *new_code = malloc(((int) sizeof(char) * ((int) strlen(code) + 2)));
             memset(new_code, 0, (int) strlen(code) + 1);
             strncpy(new_code, code, strlen(code));
-            strncat(new_code, LEFT_SIGN, 1);
+            strncat(new_code, LEFT_SIGN, 2);
             get_code_table(btreenode_get_left(node), new_code);
         }
         // proceed with right node
         if (btreenode_get_right(node) != NULL)
         {
-            char *new_code = malloc(sizeof(char) * ((int) strlen(code) + 1));
+            char *new_code = malloc(sizeof(char) * ((int) strlen(code) + 2));
             memset(new_code, 0, (int) strlen(code) + 1);
             strncpy(new_code, code, strlen(code));
-            strncat(new_code, RIGHT_SIGN, 1);
+            strncat(new_code, RIGHT_SIGN, 2);
             get_code_table(btreenode_get_right(node), new_code);
         }
     }
@@ -311,24 +315,24 @@ static void get_code_table(BTREE_NODE *node, char *code)
     {
         if (huff_filling_level == huff_size)
         {
+            // increase memory of huffman code table
             huff_size += NUM_OF_ELEMENTS;
             huffman_code_table = (HUFFMAN_CODE **) realloc(huffman_code_table, sizeof(HUFFMAN_CODE *) * huff_size);
         }
+
+        // if root is a leaf
         if (strlen(code) == 0)
         {
-            code = "0";
-        }
-        // fill table with code
-        if (((FREQUENCY *)btreenode_get_data(node))->word == '2')
-        {
-            printf("test");
+            code = "1";
         }
 
-        printf("[%c -> %s]\n", ((FREQUENCY *)btreenode_get_data(node))->word, code);
+        // fill table with code
+        if (DEBUG) printf("[%c -> %s]\n", ((FREQUENCY *)btreenode_get_data(node))->word, code);
         *(huffman_code_table + huff_filling_level) = huffman_code_create(((FREQUENCY *)btreenode_get_data(node))->word, code);
         huff_filling_level++;
     }
 
+    return SUCCESS;
 }
 
 static int get_code_table_index_by_code(char *code)
@@ -368,7 +372,6 @@ static int get_frequency_index_by_char(FREQUENCY **pp_frequency, unsigned char n
             }
         }
     }
-
     return -1;
 }
 

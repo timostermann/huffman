@@ -29,7 +29,6 @@
  * Funktionsdefinitionen
  * ======================================================================== */
 
-// TODO word anpassen
 
 /* ---------------------------------------------------------------------------
  * Funktion: frequency_create
@@ -73,14 +72,10 @@ extern void frequency_destroy(FREQUENCY **pp_frequency)
  * ------------------------------------------------------------------------ */
 extern unsigned char frequency_get_word(const FREQUENCY *p_frequency)
 {
-    unsigned char copied_string = '\0';
-
-    if (p_frequency != NULL && p_frequency->word != '\0')
+    if (p_frequency != NULL)
     {
-        copied_string = p_frequency->word;
+        return p_frequency->word;
     }
-
-    return copied_string;
 }
 
 /* ---------------------------------------------------------------------------
@@ -104,12 +99,10 @@ extern int frequency_get_count(const FREQUENCY *p_frequency)
 extern void frequency_set_word(FREQUENCY *p_frequency, 
                                const unsigned char word)
 {
-    if (p_frequency == NULL)
+    if (p_frequency != NULL)
     {
-        return;
+        p_frequency->word = word;
     }
-
-    p_frequency->word = word;
 }
 
 /* ---------------------------------------------------------------------------
@@ -165,9 +158,9 @@ extern char *frequency_get_string(const FREQUENCY *p_frequency)
             printf("[%c: %d]",
                      p_frequency->word, p_frequency->count);
         }
-        else 
+        else
         {
-            snprintf(string, arity + 5 * sizeof(char), 
+            snprintf(string, arity + 5 * sizeof(char),
                      "[-: %d]", p_frequency->count);
         }
     }

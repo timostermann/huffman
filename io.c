@@ -79,6 +79,8 @@ static FILE *p_infile;
  */
 static FILE *p_outfile;
 
+static bool end_of_infile;
+
 /**
  * Union, mit deren Hilfe man auf die einzelnen Bytes eines Integerwertes zugreifen kann.
  */
@@ -103,16 +105,24 @@ extern void init_in(void)
     read_byte_filling_level = 0;
 }
 
-extern void init_out(void)
+extern void init_out(bool save_last_byte)
 {
+    if (save_last_byte)
+    {
+        out_buffer[0] = out_buffer[write_byte_position];
+    }
+    else
+    {
+        write_bit_position = 0;
+    }
     write_byte_position = 0;
-    write_bit_position = 0;
 }
 
 extern EXIT open_infile(char in_filename[])
 {
     p_infile = fopen(in_filename, "rb");
     init_in();
+    end_of_infile = false;
     if (p_infile == NULL)
     {
         return IO_EXCEPTION;
@@ -123,7 +133,7 @@ extern EXIT open_infile(char in_filename[])
 extern EXIT open_outfile(char out_filename[])
 {
     p_outfile = fopen(out_filename, "wb");
-    init_out();
+    init_out(false);
     if (p_outfile == NULL)
     {
         return IO_EXCEPTION;
@@ -153,28 +163,30 @@ static int read_infile(void)
 
 static void write_outfile(void)
 {
-    if (write_bit_position != 0)
+    if (write_bit_position != 0 && end_of_infile)
     {
         write_byte_position++;
     }
+
     fwrite(out_buffer, sizeof(char), write_byte_position, p_outfile);
     SPRINT(out_buffer);
-    init_out();
+    init_out(write_bit_position != 0);
 }
 
 extern bool has_next_char(void)
 {
     bool has_next = read_byte_position < read_byte_filling_level;
 
-    if (write_byte_position == BUF_SIZE)
+    if (write_byte_position == BUF_SIZE && write_bit_position == 0)
     {
         write_outfile();
     }
 
     if (!has_next)
     {
-        write_outfile();
         has_next = read_infile() > 0;
+        end_of_infile = !has_next;
+        write_outfile();
     }
     return has_next;
 }
@@ -229,6 +241,7 @@ extern bool has_next_bit(void)
     {
         write_outfile();
         has_next = read_infile() > 0;
+        end_of_infile = has_next;
     }
     return has_next;
 }

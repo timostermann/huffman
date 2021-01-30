@@ -25,8 +25,9 @@ extern void init_in(void);
 
 /**
  * Initialisiert Ausgabepuffer.
+ * @param save_last_byte - Gibt an, ob letztes Byte als neues erstes behalten werden soll.
  */
-extern void init_out(void);
+extern void init_out(bool save_last_byte);
 
 /**
  * Öffnet Eingabedatei.

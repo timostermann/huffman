@@ -19,8 +19,6 @@
 #include "huffman_common.h"
 #include "arguments.h"
 
-// TODO filenames als Pointer
-
 /**
  * Hauptmethode des Programms
  * @param argv - Eingabeparameter

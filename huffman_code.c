@@ -1,8 +1,6 @@
 #include "huffman_code.h"
 #include <stdlib.h>
 
-// TODO Fehlerbehandlung
-
 /**
  * Implementierung des Eintrags der Huffman-Code-Tabelle.
  */
@@ -41,7 +39,7 @@ extern unsigned char huffman_code_get_character(HUFFMAN_CODE *huffman_code)
     }
     else
     {
-        return NULL;
+        return '\0';
     }
 }
 
