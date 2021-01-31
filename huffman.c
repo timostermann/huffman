@@ -246,6 +246,7 @@ extern EXIT decompress(char *in_filename, char *out_filename)
     }
 
     char *code = malloc(sizeof(char));
+    code[0] = '\0';
     int code_size = 1;
     int index;
     while (has_next_bit())
@@ -254,7 +255,7 @@ extern EXIT decompress(char *in_filename, char *out_filename)
         BIT next_bit = read_bit();
 
         code = realloc(code, sizeof(char) * (size_t) code_size);
-        code_size++;
+        code[code_size - 1] = '\0';
 
         if (next_bit == BIT0)
         {
@@ -265,6 +266,7 @@ extern EXIT decompress(char *in_filename, char *out_filename)
             code = strncat(code, "1", 2);
         }
 
+        code_size++;
         index = get_code_table_index_by_code(code);
         if (index != -1 && char_count > 0)
         {
